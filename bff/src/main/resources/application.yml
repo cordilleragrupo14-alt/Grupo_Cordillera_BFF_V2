@@ -1,0 +1,98 @@
+server:
+  port: ${PORT:8080}
+
+spring:
+  application:
+    name: bff
+
+# URLs de los microservicios (se sobreescriben por variables de entorno en Render)
+clients:
+  ventas:
+    url: ${VENTAS_URL:https://grupo-cordillera-ms-ventas-1.onrender.com}
+  logistica:
+    url: ${LOGISTICA_URL:https://grupo-cordillera-ms-logistica.onrender.com}
+  analitica:
+    url: ${ANALITICA_URL:https://grupo-cordillera-ms-analitica-kpi-1.onrender.com}
+  gestion:
+    url: ${GESTION_URL:https://grupo-cordillera-ms-gestion.onrender.com}
+  notificaciones:
+    url: ${NOTIFICACIONES_URL:https://grupo-cordillera-ms-notificaciones.onrender.com}
+
+app:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:https://grupo-cordillera-f-v2.vercel.app,http://localhost:5173}
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
+  health:
+    circuitbreakers:
+      enabled: true
+
+# Resilience4j - Circuit Breakers, uno por microservicio consumido
+resilience4j:
+  circuitbreaker:
+    instances:
+      ventasCB:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+      logisticaCB:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+      analiticaCB:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+      gestionCB:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+      notificacionesCB:
+        register-health-indicator: true
+        sliding-window-size: 10
+        minimum-number-of-calls: 5
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+        permitted-number-of-calls-in-half-open-state: 3
+        automatic-transition-from-open-to-half-open-enabled: true
+  timelimiter:
+    instances:
+      ventasCB:
+        timeout-duration: 4s
+      logisticaCB:
+        timeout-duration: 4s
+      analiticaCB:
+        timeout-duration: 4s
+      gestionCB:
+        timeout-duration: 4s
+      notificacionesCB:
+        timeout-duration: 4s
+
+logging:
+  level:
+    cl.grupocordillera.bff: INFO
+    org.springframework.cloud.openfeign: DEBUG
